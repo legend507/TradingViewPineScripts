@@ -9,6 +9,10 @@ sma_10 = ta.sma(close, 10)
 sma_30 = ta.sma(close, 30)
 rsi = ta.rsi(close, 14)
 atr = ta.atr(14)  // Average true range. 
+fastMA = ta.ema(close, 12)
+slowMA = ta.ema(close, 26)
+macd = fastMA - slowMA
+signal = ta.ema(macd, 9)
 
 // Specify crossover conditions.
 
@@ -23,8 +27,14 @@ atr = ta.atr(14)  // Average true range.
 // shortCondition = ta.crossover(rsi, 70)
 
 // Strategy 3: Using both sma_10, sma_30 and RSI cross.
-longCondition = ta.crossover(sma_10, sma_30)
-shortCondition = ta.crossunder(sma_10, sma_30)
+// Result: Nog a good idea.
+longCondition = ((sma_10 > sma_30) and (rsi < 30))
+shortCondition = ((sma_10 < sma_30) and (rsi > 70))
+
+// Strategy 4: Using both MACD and RSI cross.
+// Result: Nog a good idea.
+longCondition = ((sma_10 > sma_30) and (rsi < 30))
+shortCondition = ((sma_10 < sma_30) and (rsi > 70))
 
 // Trade execution is determined by crossover / crossunder conditions defined above.
 // Use average true range (ATR) to set specific stop losses and take profits.
@@ -32,15 +42,15 @@ if longCondition
     stopLoss = low - atr * 2
     takeProfit = high + atr * 2
     // strategy.entry('long', strategy.long, 100, when=rsi >= 50)  // 'when' indicates only enter trade when rsi >= 50.
-    strategy.entry('long', strategy.long, 100)  // 'when' indicates only enter trade when rsi >= 50.
-    strategy.exit('exitStopLoss_long', 'long', stop=stopLoss, limit=takeProfit)
+    strategy.entry('long', strategy.long, 10000)  // 'when' indicates only enter trade when rsi >= 50.
+    strategy.exit('exit_long', 'long', stop=stopLoss, limit=takeProfit)
 
 if shortCondition
     stopLoss = high + atr * 2
     takeProfit = low - atr * 2
     // strategy.entry('short', strategy.short, 100, when=rsi <= 50)
-    strategy.entry('short', strategy.short, 100)
-    strategy.exit('exitStopLoss_short', 'short', stop=stopLoss, limit=takeProfit)
+    strategy.entry('short', strategy.short, 10000)
+    strategy.exit('exit_short', 'short', stop=stopLoss, limit=takeProfit)
 
 // Plot.
 plot(sma_10, color=color.new(color.white, 0))
