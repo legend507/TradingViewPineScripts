@@ -1,0 +1,48 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © UntitledGoose
+
+//@version=5
+
+// For USD/JPY, deciding entry, exit points.
+strategy('usdjpy', overlay=true)
+sma_10 = ta.sma(close, 10)
+sma_30 = ta.sma(close, 30)
+rsi = ta.rsi(close, 14)
+atr = ta.atr(14)  // Average true range. 
+
+// Specify crossover conditions.
+
+// Strategy 1: Using sma_10, sma_30 cross as entry & exit indicator.
+// Result: Decent return. Not stable.
+// longCondition = ta.crossover(sma_10, sma_30)  // When sma_10 cross above sma_30.
+// shortCondition = ta.crossunder(sma_10, sma_30)
+
+// Strategy 2: Using RSI cross 30 & 70 as entry & exit indicator.
+// Result: Very bad idea.
+// longCondition = ta.crossunder(rsi, 30)
+// shortCondition = ta.crossover(rsi, 70)
+
+// Strategy 3: Using both sma_10, sma_30 and RSI cross.
+longCondition = ta.crossover(sma_10, sma_30)
+shortCondition = ta.crossunder(sma_10, sma_30)
+
+// Trade execution is determined by crossover / crossunder conditions defined above.
+// Use average true range (ATR) to set specific stop losses and take profits.
+if longCondition
+    stopLoss = low - atr * 2
+    takeProfit = high + atr * 2
+    // strategy.entry('long', strategy.long, 100, when=rsi >= 50)  // 'when' indicates only enter trade when rsi >= 50.
+    strategy.entry('long', strategy.long, 100)  // 'when' indicates only enter trade when rsi >= 50.
+    strategy.exit('exitStopLoss_long', 'long', stop=stopLoss, limit=takeProfit)
+
+if shortCondition
+    stopLoss = high + atr * 2
+    takeProfit = low - atr * 2
+    // strategy.entry('short', strategy.short, 100, when=rsi <= 50)
+    strategy.entry('short', strategy.short, 100)
+    strategy.exit('exitStopLoss_short', 'short', stop=stopLoss, limit=takeProfit)
+
+// Plot.
+plot(sma_10, color=color.new(color.white, 0))
+plot(sma_30, color=color.new(color.aqua, 0))
+
