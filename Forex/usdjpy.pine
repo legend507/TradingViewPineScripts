@@ -13,28 +13,43 @@ fastMA = ta.ema(close, 12)
 slowMA = ta.ema(close, 26)
 macd = fastMA - slowMA
 signal = ta.ema(macd, 9)
+histogram = macd - signal
+
+// Calculate MACD slope.
+radians_to_degrees = 180 / 3.14159265359
+lookback_period = input(defval=2, title='Lookback periods')
+smoothing = input.int(defval=2, minval=2, title='Smoothing')
+macd_slope = radians_to_degrees * math.atan((macd[0] - nz(macd[lookback_period])) / lookback_period)
+signal_slope = radians_to_degrees * math.atan((signal[0] - nz(signal[lookback_period])) / lookback_period)
+histogram_slope = radians_to_degrees * math.atan((histogram[0] - nz(histogram[lookback_period])) / lookback_period)
+
 
 // Specify crossover conditions.
 
-// Strategy 1: Using sma_10, sma_30 cross as entry & exit indicator.
+// Idea 1: Using sma_10, sma_30 cross as entry & exit indicator.
 // Result: Decent return. Not stable.
 // longCondition = ta.crossover(sma_10, sma_30)  // When sma_10 cross above sma_30.
 // shortCondition = ta.crossunder(sma_10, sma_30)
 
-// Strategy 2: Using RSI cross 30 & 70 as entry & exit indicator.
+// Idea 2: Using RSI cross 30 & 70 as entry & exit indicator.
 // Result: Very bad idea.
 // longCondition = ta.crossunder(rsi, 30)
 // shortCondition = ta.crossover(rsi, 70)
 
-// Strategy 3: Using both sma_10, sma_30 and RSI cross.
-// Result: Nog a good idea.
-longCondition = ((sma_10 > sma_30) and (rsi < 30))
-shortCondition = ((sma_10 < sma_30) and (rsi > 70))
+// Idea 3: Using both sma_10, sma_30 and RSI cross.
+// Result: Not a good idea.
+// longCondition = ((sma_10 > sma_30) and (rsi < 30))
+// shortCondition = ((sma_10 < sma_30) and (rsi > 70))
 
-// Strategy 4: Using both MACD and RSI cross.
-// Result: Nog a good idea.
-longCondition = ((sma_10 > sma_30) and (rsi < 30))
-shortCondition = ((sma_10 < sma_30) and (rsi > 70))
+// Idea 4: Using both MACD slope and RSI cross.
+// Result: Not a good idea. Conditions too strict, very few trades.
+// longCondition = ((macd_slope > signal_slope) and (rsi < 30))
+// shortCondition = ((macd_slope < signal_slope) and (rsi > 70))
+
+// Idea 5: Using both MACD slope.
+// Result: 
+longCondition = (macd_slope > signal_slope)
+shortCondition = (macd_slope < signal_slope)
 
 // Trade execution is determined by crossover / crossunder conditions defined above.
 // Use average true range (ATR) to set specific stop losses and take profits.
@@ -52,7 +67,5 @@ if shortCondition
     strategy.entry('short', strategy.short, 10000)
     strategy.exit('exit_short', 'short', stop=stopLoss, limit=takeProfit)
 
-// Plot.
 plot(sma_10, color=color.new(color.white, 0))
 plot(sma_30, color=color.new(color.aqua, 0))
-

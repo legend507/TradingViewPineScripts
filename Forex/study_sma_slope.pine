@@ -1,0 +1,12 @@
+//@version=5
+indicator(title='SMA 10 & 30 Slope', shorttitle='SMA 10 & 30 Slope', precision=8)
+radians_to_degrees = 180 / 3.14159265359
+sma_10 = ta.sma(close, 10)
+sma_30 = ta.sma(close, 30)
+lookback_period = input(defval=5, title='Lookback periods')
+smoothing = input.int(defval=8, minval=2, title='Smoothing')
+sma_10_slope = radians_to_degrees * math.atan((sma_10[0] - nz(sma_10[lookback_period])) / lookback_period)
+sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_period])) / lookback_period)
+plot(ta.linreg(sma_10_slope, smoothing, 0), color=color.new(#FF0099, 0), title='sma_10 Slope') // Red.
+plot(sma_30_slope, color=color.new(color.teal, 0), title='sma_30 Slope') // Green.
+hline(0, color=color.white)

@@ -5,8 +5,8 @@ radians_to_degrees = 180 / 3.14159265359
 fastLength = input.int(12, minval=1)
 slowLength = input.int(26, minval=1)
 signalLength = input.int(9, minval=1)
-lookback_period = input(defval=5, title='Lookback periods')
-smoothing = input.int(defval=8, minval=2, title='Smoothing')
+lookback_period = input(defval=5, title='Lookback periods') // Former value 5.
+smoothing = input.int(defval=8, minval=2, title='Smoothing') // Former value 8.
 fastMA = ta.ema(source, fastLength)
 slowMA = ta.ema(source, slowLength)
 macd = fastMA - slowMA
@@ -15,8 +15,7 @@ histogram = macd - signal
 macd_slope = radians_to_degrees * math.atan((macd[0] - nz(macd[lookback_period])) / lookback_period)
 signal_slope = radians_to_degrees * math.atan((signal[0] - nz(signal[lookback_period])) / lookback_period)
 histogram_slope = radians_to_degrees * math.atan((histogram[0] - nz(histogram[lookback_period])) / lookback_period)
-plot(ta.linreg(macd_slope, smoothing, 0), color=color.new(#FF0099, 0), title='MACD Slope')
-plot(signal_slope, color=color.new(color.teal, 0), title='Signal Slope')
-plot(ta.linreg(histogram_slope, smoothing, 0), style=plot.style_area, color=color.new(color.white, 95), title='Histogram Slope')
+plot(ta.linreg(macd_slope, smoothing, 0), color=color.new(#FF0099, 0), title='MACD Slope') // Red.
+plot(signal_slope, color=color.new(color.teal, 0), title='Signal Slope') // Green.
+plot(ta.linreg(histogram_slope, smoothing, 0), style=plot.style_area, color=color.new(color.white, 0), title='Histogram Slope') // Transparent white.
 hline(0, color=color.white)
-
