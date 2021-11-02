@@ -1,1 +1,32 @@
-// Plot macd and sma 10 & 30 slopes.
+//@version=5
+
+// MACD slope
+indicator(title='MACD, SMA10&30 Slope', shorttitle='MACD, SMA10&30 Slope', precision=8)
+source = close
+radians_to_degrees = 180 / 3.14159265359
+fastLength = input.int(12, minval=1)
+slowLength = input.int(26, minval=1)
+signalLength = input.int(9, minval=1)
+lookback_period = input(defval=5, title='Lookback periods') // Former value 5.
+smoothing = input.int(defval=8, minval=2, title='Smoothing') // Former value 8.
+fastMA = ta.ema(source, fastLength)
+slowMA = ta.ema(source, slowLength)
+macd = fastMA - slowMA
+signal = ta.ema(macd, signalLength)
+histogram = macd - signal
+macd_slope = radians_to_degrees * math.atan((macd[0] - nz(macd[lookback_period])) / lookback_period)
+signal_slope = radians_to_degrees * math.atan((signal[0] - nz(signal[lookback_period])) / lookback_period)
+histogram_slope = radians_to_degrees * math.atan((histogram[0] - nz(histogram[lookback_period])) / lookback_period)
+
+// SMA 10, 30 slope
+sma_10 = ta.sma(close, 10)
+sma_30 = ta.sma(close, 30)
+sma_10_slope = radians_to_degrees * math.atan((sma_10[0] - nz(sma_10[lookback_period])) / lookback_period)
+sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_period])) / lookback_period)
+
+// Plot.
+plot(ta.linreg(macd_slope, smoothing, 0), color=color.new(color.blue, 0), title='MACD Slope')
+plot(signal_slope, color=color.new(#bf5309, 0), title='Signal Slope') // Orange-ish color. Same with MACD.
+plot(ta.linreg(sma_10_slope, smoothing, 0), color=color.new(color.orange, 0), title='sma_10 Slope')
+plot(sma_30_slope, color=color.new(color.green, 0), title='sma_30 Slope')
+hline(0, color=color.white)

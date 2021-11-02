@@ -4,7 +4,7 @@
 //@version=5
 
 // For USD/JPY, deciding entry, exit points.
-strategy('usdjpy', overlay=true)
+strategy('usdjpy strategy', overlay=true)
 sma_10 = ta.sma(close, 10)
 sma_30 = ta.sma(close, 30)
 rsi = ta.rsi(close, 14)
@@ -46,7 +46,7 @@ histogram_slope = radians_to_degrees * math.atan((histogram[0] - nz(histogram[lo
 // longCondition = ((macd_slope > signal_slope) and (rsi < 30))
 // shortCondition = ((macd_slope < signal_slope) and (rsi > 70))
 
-// Idea 5: Using both MACD slope.
+// Idea 5: Using both MACD slope, sma10&30 slope.
 // Result: 
 longCondition = (macd_slope > signal_slope)
 shortCondition = (macd_slope < signal_slope)
@@ -67,5 +67,5 @@ if shortCondition
     strategy.entry('short', strategy.short, 10000)
     strategy.exit('exit_short', 'short', stop=stopLoss, limit=takeProfit)
 
-plot(sma_10, color=color.new(color.white, 0))
-plot(sma_30, color=color.new(color.aqua, 0))
+plot(sma_10, color=color.new(color.orange, 0))
+plot(sma_30, color=color.new(color.green, 0))
