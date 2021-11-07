@@ -5,17 +5,15 @@
 
 // For USD/JPY, deciding entry, exit points.
 strategy('usdjpy strategy', overlay=true)
-sma_10 = ta.sma(close, 10)
-sma_30 = ta.sma(close, 30)
 rsi = ta.rsi(close, 14)
 atr = ta.atr(14)  // Average true range. 
+
+// Calculate MACD slope.
 fastMA = ta.ema(close, 12)
 slowMA = ta.ema(close, 26)
 macd = fastMA - slowMA
 signal = ta.ema(macd, 9)
 histogram = macd - signal
-
-// Calculate MACD slope.
 radians_to_degrees = 180 / 3.14159265359
 lookback_period = input(defval=2, title='Lookback periods')
 smoothing = input.int(defval=2, minval=2, title='Smoothing')
@@ -23,6 +21,11 @@ macd_slope = radians_to_degrees * math.atan((macd[0] - nz(macd[lookback_period])
 signal_slope = radians_to_degrees * math.atan((signal[0] - nz(signal[lookback_period])) / lookback_period)
 histogram_slope = radians_to_degrees * math.atan((histogram[0] - nz(histogram[lookback_period])) / lookback_period)
 
+// Calculate SMA10, 30 slope.
+sma_10 = ta.sma(close, 10)
+sma_30 = ta.sma(close, 30)
+sma_10_slope = radians_to_degrees * math.atan((sma_10[0] - nz(sma_10[lookback_period])) / lookback_period)
+sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_period])) / lookback_period)
 
 // Specify crossover conditions.
 
