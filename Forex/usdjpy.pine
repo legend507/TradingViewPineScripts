@@ -51,8 +51,8 @@ sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_pe
 
 // Idea 5: Using both MACD slope, sma10&30 slope.
 // Result: 
-longCondition = (macd_slope > signal_slope)
-shortCondition = (macd_slope < signal_slope)
+longCondition = (macd_slope > signal_slope) and (sma_10_slope > sma_30_slope) // and (rsi <= 40)
+shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_10_slope < sma_30_slope) // and (rsi >= 60)
 
 // Trade execution is determined by crossover / crossunder conditions defined above.
 // Use average true range (ATR) to set specific stop losses and take profits.
@@ -61,6 +61,8 @@ if longCondition
     takeProfit = high + atr * 2
     // strategy.entry('long', strategy.long, 100, when=rsi >= 50)  // 'when' indicates only enter trade when rsi >= 50.
     strategy.entry('long', strategy.long, 10000)  // 'when' indicates only enter trade when rsi >= 50.
+
+    // Can I define exit as RSI >= 70?
     strategy.exit('exit_long', 'long', stop=stopLoss, limit=takeProfit)
 
 if shortCondition
