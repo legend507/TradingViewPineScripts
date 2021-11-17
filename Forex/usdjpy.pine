@@ -27,6 +27,15 @@ sma_30 = ta.sma(close, 30)
 sma_10_slope = radians_to_degrees * math.atan((sma_10[0] - nz(sma_10[lookback_period])) / lookback_period)
 sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_period])) / lookback_period)
 
+// Bollinger Bands.
+length = 14
+bb_src = input(close, title = 'Source')
+bb_mult = input.float(2.0, minval = 0.001, maxval = 50)
+basis = ta.sma(bb_src, length)
+dev = bb_mult * ta.stdev(bb_src, length)
+bb_upper = basis + dev
+bb_lower = basis - dev
+
 // Specify crossover conditions.
 
 // Idea 1: Using sma_10, sma_30 cross as entry & exit indicator.
@@ -50,9 +59,15 @@ sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_pe
 // shortCondition = ((macd_slope < signal_slope) and (rsi > 70))
 
 // Idea 5: Using both MACD slope, sma10&30 slope.
+// Result: Good return.
+// longCondition = (macd_slope > signal_slope) and (sma_10_slope > sma_30_slope) // and (rsi <= 40)
+// shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_10_slope < sma_30_slope) // and (rsi >= 60)
+
+// Idea 6: Build on Idea 5, add BB boundaries crossover to conditions.
 // Result: 
-longCondition = (macd_slope > signal_slope) and (sma_10_slope > sma_30_slope) // and (rsi <= 40)
-shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_10_slope < sma_30_slope) // and (rsi >= 60)
+bb_offset = 0.1 // Add this offset, otherwise very few trade.
+longCondition = (macd_slope > signal_slope) and (sma_10_slope > sma_30_slope) and (close <= bb_lower + bb_offset) // and (rsi <= 40)
+shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_10_slope < sma_30_slope) and (close >= bb_upper - bb_offset) // and (rsi >= 60)
 
 // Trade execution is determined by crossover / crossunder conditions defined above.
 // Use average true range (ATR) to set specific stop losses and take profits.
@@ -72,5 +87,12 @@ if shortCondition
     strategy.entry('short', strategy.short, 10000)
     strategy.exit('exit_short', 'short', stop=stopLoss, limit=takeProfit)
 
+// Plot.
+// SMA.
 plot(sma_10, color=color.new(color.orange, 0))
 plot(sma_30, color=color.new(color.green, 0))
+// BB.
+plot(basis, color=color.red)
+bb_upper_plot = plot(bb_upper, color=color.blue)
+bb_lower_plot = plot(bb_lower, color=color.blue)
+fill(bb_upper_plot, bb_lower_plot, color=color.new(color.green, 90))
