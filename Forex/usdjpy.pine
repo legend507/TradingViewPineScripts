@@ -75,7 +75,7 @@ if longCondition
     stopLoss = low - atr * 2
     takeProfit = high + atr * 2
     // strategy.entry('long', strategy.long, 100, when=rsi >= 50)  // 'when' indicates only enter trade when rsi >= 50.
-    strategy.entry('long', strategy.long, 10000)  // 'when' indicates only enter trade when rsi >= 50.
+    strategy.entry('long', strategy.long, 1)  // 'when' indicates only enter trade when rsi >= 50.
 
     // Can I define exit as RSI >= 70?
     strategy.exit('exit_long', 'long', stop=stopLoss, limit=takeProfit)
@@ -84,7 +84,7 @@ if shortCondition
     stopLoss = high + atr * 2
     takeProfit = low - atr * 2
     // strategy.entry('short', strategy.short, 100, when=rsi <= 50)
-    strategy.entry('short', strategy.short, 10000)
+    strategy.entry('short', strategy.short, 1)
     strategy.exit('exit_short', 'short', stop=stopLoss, limit=takeProfit)
 
 // Plot.
