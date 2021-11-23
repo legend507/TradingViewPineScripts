@@ -22,10 +22,10 @@ signal_slope = radians_to_degrees * math.atan((signal[0] - nz(signal[lookback_pe
 histogram_slope = radians_to_degrees * math.atan((histogram[0] - nz(histogram[lookback_period])) / lookback_period)
 
 // Calculate SMA10, 30 slope.
-sma_10 = ta.sma(close, 10)
-sma_30 = ta.sma(close, 30)
-sma_10_slope = radians_to_degrees * math.atan((sma_10[0] - nz(sma_10[lookback_period])) / lookback_period)
-sma_30_slope = radians_to_degrees * math.atan((sma_30[0] - nz(sma_30[lookback_period])) / lookback_period)
+sma_short = ta.sma(close, 5)
+sma_long = ta.sma(close, 15)
+sma_short_slope = radians_to_degrees * math.atan((sma_short[0] - nz(sma_short[lookback_period])) / lookback_period)
+sma_long_slope = radians_to_degrees * math.atan((sma_long[0] - nz(sma_long[lookback_period])) / lookback_period)
 
 // Bollinger Bands.
 length = 14
@@ -38,20 +38,20 @@ bb_lower = basis - dev
 
 // Specify crossover conditions.
 
-// Idea 1: Using sma_10, sma_30 cross as entry & exit indicator.
+// Idea 1: Using sma_short, sma_long cross as entry & exit indicator.
 // Result: Decent return. Not stable.
-// longCondition = ta.crossover(sma_10, sma_30)  // When sma_10 cross above sma_30.
-// shortCondition = ta.crossunder(sma_10, sma_30)
+// longCondition = ta.crossover(sma_short, sma_long)  // When sma_short cross above sma_long.
+// shortCondition = ta.crossunder(sma_short, sma_long)
 
 // Idea 2: Using RSI cross 30 & 70 as entry & exit indicator.
 // Result: Very bad idea.
 // longCondition = ta.crossunder(rsi, 30)
 // shortCondition = ta.crossover(rsi, 70)
 
-// Idea 3: Using both sma_10, sma_30 and RSI cross.
+// Idea 3: Using both sma_short, sma_long and RSI cross.
 // Result: Not a good idea.
-// longCondition = ((sma_10 > sma_30) and (rsi < 30))
-// shortCondition = ((sma_10 < sma_30) and (rsi > 70))
+// longCondition = ((sma_short > sma_long) and (rsi < 30))
+// shortCondition = ((sma_short < sma_long) and (rsi > 70))
 
 // Idea 4: Using both MACD slope and RSI cross.
 // Result: Not a good idea. Conditions too strict, very few trades.
@@ -60,37 +60,33 @@ bb_lower = basis - dev
 
 // Idea 5: Using both MACD slope, sma10&30 slope.
 // Result: Good return.
-// longCondition = (macd_slope > signal_slope) and (sma_10_slope > sma_30_slope) // and (rsi <= 40)
-// shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_10_slope < sma_30_slope) // and (rsi >= 60)
+// longCondition = (macd_slope > signal_slope) and (sma_short_slope > sma_long_slope) // and (rsi <= 40)
+// shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_short_slope < sma_long_slope) // and (rsi >= 60)
 
 // Idea 6: Build on Idea 5, add BB boundaries crossover to conditions.
 // Result: 
-bb_offset = 0.1 // Add this offset, otherwise very few trade.
-longCondition = (macd_slope > signal_slope) and (sma_10_slope > sma_30_slope) and (close <= bb_lower + bb_offset) // and (rsi <= 40)
-shortCondition = (macd_slope < signal_slope) and (rsi >= 60) and (sma_10_slope < sma_30_slope) and (close >= bb_upper - bb_offset) // and (rsi >= 60)
+bb_offset = 0.05 // Add this offset, otherwise very few trade.
+longCondition = (macd_slope > signal_slope) and (close <= bb_lower + bb_offset) //and (sma_short_slope > sma_long_slope)
+shortCondition = (macd_slope < signal_slope) and (close >= bb_upper - bb_offset) //and (sma_short_slope < sma_long_slope)
 
 // Trade execution is determined by crossover / crossunder conditions defined above.
 // Use average true range (ATR) to set specific stop losses and take profits.
 if longCondition
-    stopLoss = low - atr * 2
-    takeProfit = high + atr * 2
-    // strategy.entry('long', strategy.long, 100, when=rsi >= 50)  // 'when' indicates only enter trade when rsi >= 50.
-    strategy.entry('long', strategy.long, 1)  // 'when' indicates only enter trade when rsi >= 50.
-
-    // Can I define exit as RSI >= 70?
+    stopLoss = close - atr * 2
+    takeProfit = close + atr * 2
+    strategy.entry('long', strategy.long, 1, when = rsi<50)
     strategy.exit('exit_long', 'long', stop=stopLoss, limit=takeProfit)
 
 if shortCondition
-    stopLoss = high + atr * 2
-    takeProfit = low - atr * 2
-    // strategy.entry('short', strategy.short, 100, when=rsi <= 50)
-    strategy.entry('short', strategy.short, 1)
+    stopLoss = close + atr * 2
+    takeProfit = close - atr * 2
+    strategy.entry('short', strategy.short, 1, when = rsi>50)
     strategy.exit('exit_short', 'short', stop=stopLoss, limit=takeProfit)
 
 // Plot.
 // SMA.
-plot(sma_10, color=color.new(color.orange, 0))
-plot(sma_30, color=color.new(color.green, 0))
+plot(sma_short, color=color.new(color.orange, 0))
+plot(sma_long, color=color.new(color.green, 0))
 // BB.
 plot(basis, color=color.red)
 bb_upper_plot = plot(bb_upper, color=color.blue)
