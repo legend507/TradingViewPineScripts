@@ -1,0 +1,7 @@
+// Get high / low / diff for each candle.
+//@version=5
+
+indicator('Previous Candle High and Low', shorttitle='Prev. H/L', overlay=true)
+
+plot(high)
+plot(low)
