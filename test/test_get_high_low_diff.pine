@@ -2,6 +2,7 @@
 //@version=5
 
 indicator('Previous Candle High and Low', shorttitle='Prev. H/L', overlay=true)
-
-plot(high)
-plot(low)
+diff = high-low
+plot(series = diff, style=plot.style_columns)
+// plot(high)
+// plot(low)

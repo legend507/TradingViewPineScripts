@@ -1,0 +1,6 @@
+//@version=5
+indicator(title='RSI usage', shorttitle='RSI usage', precision=8)
+
+rsi_close_14 = ta.rsi(close, 14)
+
+plot(rsi_close_14)
