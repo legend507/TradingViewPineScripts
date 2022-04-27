@@ -89,18 +89,8 @@ calcSlope(source, length) =>
         
 // Slope, average, intercept.
 [s, a, i] = calcSlope(sourceInput, lengthInput)
-
-// linreg base function
-startPrice = i + s * (lengthInput - 1)
-endPrice = i
-var line baseLine = na
-if na(baseLine) and not na(startPrice)
-    baseLine := line.new(bar_index - lengthInput + 1, startPrice, bar_index, endPrice, width=d_lwidth, style=D_Line_Type, extend=extendStyle, color=colorBase)
-else
-    line.set_xy1(baseLine, bar_index - lengthInput + 1, startPrice)
-    line.set_xy2(baseLine, bar_index, endPrice)
-    na
     
+// Calculate standard deviation.
 calcDev(source, length, slope, average, intercept) =>
     upDev = 0.0
     dnDev = 0.0
@@ -133,63 +123,77 @@ calcDev(source, length, slope, average, intercept) =>
     
 [stdDev, pearsonR, upDev, dnDev] = calcDev(sourceInput, lengthInput, s, a, i)
 
-// large linreg function
-upperStartPrice = startPrice + (useUpperDevInput ? upperMultInput * stdDev : upDev)
-upperEndPrice = endPrice + (useUpperDevInput ? upperMultInput * stdDev : upDev)
-var line upper = na
-lowerStartPrice = startPrice + (useLowerDevInput ? -lowerMultInput * stdDev : -dnDev)
-lowerEndPrice = endPrice + (useLowerDevInput ? -lowerMultInput * stdDev : -dnDev)
-var line lower = na
-if na(upper) and not na(upperStartPrice)
-    upper := useDev1Input ? line.new(bar_index - lengthInput + 1, upperStartPrice, bar_index, upperEndPrice, width=a_lwidth, style=A_Line_Type, extend=extendStyle, color=colorLarge) : na
-else
-    line.set_xy1(upper, bar_index - lengthInput + 1, upperStartPrice)
-    line.set_xy2(upper, bar_index, upperEndPrice)
-    na
-if na(lower) and not na(lowerStartPrice)
-    lower := useDev1Input ? line.new(bar_index - lengthInput + 1, lowerStartPrice, bar_index, lowerEndPrice, width=a_lwidth, style=A_Line_Type, extend=extendStyle, color=colorLarge) : na
-else
-    line.set_xy1(lower, bar_index - lengthInput + 1, lowerStartPrice)
-    line.set_xy2(lower, bar_index, lowerEndPrice)
-    na
+// Draw trendlines based on returns of calcSlope and calcDev.
+drawTrendlines(lengthInput, s, a, i, stdDev, pearsonR, upDev, dnDev) =>
+    // linreg base function
+    startPrice = i + s * (lengthInput - 1)
+    endPrice = i
+    var line baseLine = na
+    if na(baseLine) and not na(startPrice)
+        baseLine := line.new(bar_index - lengthInput + 1, startPrice, bar_index, endPrice, width=d_lwidth, style=D_Line_Type, extend=extendStyle, color=colorBase)
+    else
+        line.set_xy1(baseLine, bar_index - lengthInput + 1, startPrice)
+        line.set_xy2(baseLine, bar_index, endPrice)
+        na
 
-// medium linreg function
-upperStartPrice2 = startPrice + (useUpperDevInput2 ? upperMultInput2 * stdDev : upDev)
-upperEndPrice2 = endPrice + (useUpperDevInput2 ? upperMultInput2 * stdDev : upDev)
-var line upper2 = na
-lowerStartPrice2 = startPrice + (useLowerDevInput2 ? -lowerMultInput2 * stdDev : -dnDev)
-lowerEndPrice2 = endPrice + (useLowerDevInput2 ? -lowerMultInput2 * stdDev : -dnDev)
-var line lower2 = na
-if na(upper2) and not na(upperStartPrice2)
-    upper2 := useDev2Input ? line.new(bar_index - lengthInput + 1, upperStartPrice2, bar_index, upperEndPrice2, width=b_lwidth, style=B_Line_Type, extend=extendStyle, color=colorMedium) : na
-else
-    line.set_xy1(upper2, bar_index - lengthInput + 1, upperStartPrice2)
-    line.set_xy2(upper2, bar_index, upperEndPrice2)
-    na
-if na(lower2) and not na(lowerStartPrice2)
-    lower2 := useDev2Input ? line.new(bar_index - lengthInput + 1, lowerStartPrice2, bar_index, lowerEndPrice2, width=b_lwidth, style=B_Line_Type, extend=extendStyle, color=colorMedium) : na
-else
-    line.set_xy1(lower2, bar_index - lengthInput + 1, lowerStartPrice2)
-    line.set_xy2(lower2, bar_index, lowerEndPrice2)
-    na
+    // large linreg function
+    upperStartPrice = startPrice + (useUpperDevInput ? upperMultInput * stdDev : upDev)
+    upperEndPrice = endPrice + (useUpperDevInput ? upperMultInput * stdDev : upDev)
+    var line upper = na
+    lowerStartPrice = startPrice + (useLowerDevInput ? -lowerMultInput * stdDev : -dnDev)
+    lowerEndPrice = endPrice + (useLowerDevInput ? -lowerMultInput * stdDev : -dnDev)
+    var line lower = na
+    if na(upper) and not na(upperStartPrice)
+        upper := useDev1Input ? line.new(bar_index - lengthInput + 1, upperStartPrice, bar_index, upperEndPrice, width=a_lwidth, style=A_Line_Type, extend=extendStyle, color=colorLarge) : na
+    else
+        line.set_xy1(upper, bar_index - lengthInput + 1, upperStartPrice)
+        line.set_xy2(upper, bar_index, upperEndPrice)
+        na
+    if na(lower) and not na(lowerStartPrice)
+        lower := useDev1Input ? line.new(bar_index - lengthInput + 1, lowerStartPrice, bar_index, lowerEndPrice, width=a_lwidth, style=A_Line_Type, extend=extendStyle, color=colorLarge) : na
+    else
+        line.set_xy1(lower, bar_index - lengthInput + 1, lowerStartPrice)
+        line.set_xy2(lower, bar_index, lowerEndPrice)
+        na
 
-// small linreg fuction
-upperStartPrice3 = startPrice + (useUpperDevInput3 ? upperMultInput3 * stdDev : upDev)
-upperEndPrice3 = endPrice + (useUpperDevInput3 ? upperMultInput3 * stdDev : upDev)
-var line upper3 = na
-lowerStartPrice3 = startPrice + (useLowerDevInput3 ? -lowerMultInput3 * stdDev : -dnDev)
-lowerEndPrice3 = endPrice + (useLowerDevInput3 ? -lowerMultInput3 * stdDev : -dnDev)
-var line lower3 = na
-if na(upper3) and not na(upperStartPrice3)
-    upper3 := useDev3Input ? line.new(bar_index - lengthInput + 1, upperStartPrice3, bar_index, upperEndPrice3, width=c_lwidth, style=C_Line_Type, extend=extendStyle, color=colorSmall) : na
-else
-    line.set_xy1(upper3, bar_index - lengthInput + 1, upperStartPrice3)
-    line.set_xy2(upper3, bar_index, upperEndPrice3)
-    na
-if na(lower3) and not na(lowerStartPrice3)
-    lower3 := useDev3Input ? line.new(bar_index - lengthInput + 1, lowerStartPrice3, bar_index, lowerEndPrice3, width=c_lwidth, style=C_Line_Type, extend=extendStyle, color=colorSmall) : na
-else
-    line.set_xy1(lower3, bar_index - lengthInput + 1, lowerStartPrice3)
-    line.set_xy2(lower3, bar_index, lowerEndPrice3)
-    na
+    // medium linreg function
+    upperStartPrice2 = startPrice + (useUpperDevInput2 ? upperMultInput2 * stdDev : upDev)
+    upperEndPrice2 = endPrice + (useUpperDevInput2 ? upperMultInput2 * stdDev : upDev)
+    var line upper2 = na
+    lowerStartPrice2 = startPrice + (useLowerDevInput2 ? -lowerMultInput2 * stdDev : -dnDev)
+    lowerEndPrice2 = endPrice + (useLowerDevInput2 ? -lowerMultInput2 * stdDev : -dnDev)
+    var line lower2 = na
+    if na(upper2) and not na(upperStartPrice2)
+        upper2 := useDev2Input ? line.new(bar_index - lengthInput + 1, upperStartPrice2, bar_index, upperEndPrice2, width=b_lwidth, style=B_Line_Type, extend=extendStyle, color=colorMedium) : na
+    else
+        line.set_xy1(upper2, bar_index - lengthInput + 1, upperStartPrice2)
+        line.set_xy2(upper2, bar_index, upperEndPrice2)
+        na
+    if na(lower2) and not na(lowerStartPrice2)
+        lower2 := useDev2Input ? line.new(bar_index - lengthInput + 1, lowerStartPrice2, bar_index, lowerEndPrice2, width=b_lwidth, style=B_Line_Type, extend=extendStyle, color=colorMedium) : na
+    else
+        line.set_xy1(lower2, bar_index - lengthInput + 1, lowerStartPrice2)
+        line.set_xy2(lower2, bar_index, lowerEndPrice2)
+        na
 
+    // small linreg fuction
+    upperStartPrice3 = startPrice + (useUpperDevInput3 ? upperMultInput3 * stdDev : upDev)
+    upperEndPrice3 = endPrice + (useUpperDevInput3 ? upperMultInput3 * stdDev : upDev)
+    var line upper3 = na
+    lowerStartPrice3 = startPrice + (useLowerDevInput3 ? -lowerMultInput3 * stdDev : -dnDev)
+    lowerEndPrice3 = endPrice + (useLowerDevInput3 ? -lowerMultInput3 * stdDev : -dnDev)
+    var line lower3 = na
+    if na(upper3) and not na(upperStartPrice3)
+        upper3 := useDev3Input ? line.new(bar_index - lengthInput + 1, upperStartPrice3, bar_index, upperEndPrice3, width=c_lwidth, style=C_Line_Type, extend=extendStyle, color=colorSmall) : na
+    else
+        line.set_xy1(upper3, bar_index - lengthInput + 1, upperStartPrice3)
+        line.set_xy2(upper3, bar_index, upperEndPrice3)
+        na
+    if na(lower3) and not na(lowerStartPrice3)
+        lower3 := useDev3Input ? line.new(bar_index - lengthInput + 1, lowerStartPrice3, bar_index, lowerEndPrice3, width=c_lwidth, style=C_Line_Type, extend=extendStyle, color=colorSmall) : na
+    else
+        line.set_xy1(lower3, bar_index - lengthInput + 1, lowerStartPrice3)
+        line.set_xy2(lower3, bar_index, lowerEndPrice3)
+        na
+
+drawTrendlines(lengthInput, s, a, i, stdDev, pearsonR, upDev, dnDev)

@@ -1,0 +1,12 @@
+//@version=5
+indicator('Trendline test', shorttitle='Trendline test', precision=8, overlay=true)
+
+// time[x] means x bars ago.
+if (barstate.islast)
+    line.new(x1=bar_index[30], y1=high[30],
+         x2=bar_index, y2=high, color=color.lime,
+         width=10)
+
+    line.new(x1=bar_index[30], y1=low[30],
+         x2=bar_index, y2=low, color=color.red,
+         width=10)
