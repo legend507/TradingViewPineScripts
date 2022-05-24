@@ -6,7 +6,7 @@ indicator("Linear regression trend lines", overlay=true)
 
 // Config group 1 - Controls # of days to use for trendline calc and which data to use (open or close).
 group1 = "LINEAR REGRESSION SETTING"
-lengthInput = input.int(100, title="Length", minval = 1, maxval = 5000, group=group1)
+lengthInput = input.int(30, title="Length", minval = 1, maxval = 5000, group=group1)  // By default use 30 bars. Use 1 bar = 1 day then it's roughly 1 month ago.
 sourceInput = input.source(close, title="Source", group=group1)
 
 // Config groups 2 - Controls if a line is visible.
@@ -195,5 +195,9 @@ drawTrendlines(lengthInput, s, a, i, stdDev, pearsonR, upDev, dnDev) =>
         line.set_xy1(lower3, bar_index - lengthInput + 1, lowerStartPrice3)
         line.set_xy2(lower3, bar_index, lowerEndPrice3)
         na
+
+    // Add tag to show slope to indicate strength of the trend.
+    slopeLabel = label.new(bar_index - lengthInput + 1, upperStartPrice)
+    label.set_text(slopeLabel, str.tostring(pearsonR))  // pearsonR is what is used in the official regression tool.
 
 drawTrendlines(lengthInput, s, a, i, stdDev, pearsonR, upDev, dnDev)
