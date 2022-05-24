@@ -5,8 +5,8 @@
 indicator('Fibonacci Retracement', 'Fibo retr', overlay=true, max_bars_back=1000)
 
 // Configs.
-tf = input.timeframe(defval='D', title='ZigZag Resolution')
-prd = input.int(defval=2, title='ZigZag Period', minval=2, maxval=10)  // Period, how many bars to use.
+tf = input.timeframe(defval='W', title='ZigZag Resolution')
+prd = input.int(defval=2, title='ZigZag Period', minval=2, maxval=10)  // Setting this value too high will show tons of lines.
 showzigzag = input(defval=false, title='Show Zig Zag')
 showfibo = input(defval=true, title='Show Fibonacci Ratios')
 colorfulfibo = input(defval=false, title='Colorful Fibonacci Levels')
